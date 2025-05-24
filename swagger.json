@@ -8,7 +8,6 @@
   "host": "cse341-techshop-api.onrender.com/api/items",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
