@@ -1,55 +1,29 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
 const bodyParser = require('body-parser');
-require('dotenv').config();
-
+const mongodb = require('./data/database');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+const port = process.env.PORT || 3000;
+
+// Move bodyParser before routes
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader(
+        'Access-Control-Allow-Methods',
+        'Origin, X-Requested-With, Content-Type, Accept, Z-Key');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    next();
+});
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB connected successfully');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
-};
+app.use('/', require('./routes'));
 
-connectDB();
-
-const itemRoutes = require('./routes/itemRoutes');
-const swaggerRoutes = require('./routes/swagger');
-
-app.use('/api/items', itemRoutes);
-app.use('/', swaggerRoutes);
-
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Welcome to the Node.js REST API', 
-    version: '1.0.0',
-    endpoints: {
-      items: '/api/items',
-      users: '/api/users',
-      docs: '/api-docs'
+mongodb.initDb((err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        app.listen(port, () => {
+            console.log(`Running on port ${port}`);
+        });
     }
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
