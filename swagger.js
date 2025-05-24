@@ -5,7 +5,7 @@ const doc = {
         title: 'TechStore API',
         description: 'TechStore API Documentation',
     },
-    host: 'localhost:3000',
+    host: 'cse341-techshop-api.onrender.com',
     schemes: ['http', 'https'],
 };
 
