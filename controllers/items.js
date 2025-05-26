@@ -20,21 +20,30 @@ const getItemById = async (req, res) => {
     //#swagger.tags = ['Items']
     try {
         if (!ObjectId.isValid(req.params.id)) {
-            res.status(400).json('Must use a valid item id to find an item.');
+            res.status(400).json({ message: 'Invalid item ID format' });
             return;
         }
+        
         const itemId = new ObjectId(req.params.id);
         const result = await mongodb.getDatabase().db().collection('items').find({ _id: itemId });
-        result.toArray().then((items) => {
+        
+        try {
+            const items = await result.toArray();
             if (items.length === 0) {
                 res.status(404).json({ message: 'Item not found' });
                 return;
             }
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(items[0]);
-        });
+        } catch (arrayError) {
+            res.status(500).json({ message: 'Error processing database results', error: arrayError.message });
+        }
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ 
+            message: 'Database operation failed', 
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+        });
     }
 };
 
@@ -50,12 +59,34 @@ const createItem = async (req, res) => {
             brand: req.body.brand,
             stock: req.body.stock,
             imageUrl: req.body.imageUrl,
-            specifications: req.body.specifications
+            specifications: req.body.specifications,
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
-        // Validation
-        if (!item.name || !item.price || !item.category) {
-            res.status(400).json({ message: 'Name, price, and category are required fields' });
+        // Enhanced validation
+        if (!item.name || typeof item.name !== 'string') {
+            res.status(400).json({ message: 'Name is required and must be a string' });
+            return;
+        }
+
+        if (!item.price || typeof item.price !== 'number' || item.price <= 0) {
+            res.status(400).json({ message: 'Price is required and must be a positive number' });
+            return;
+        }
+
+        if (!item.category || typeof item.category !== 'string') {
+            res.status(400).json({ message: 'Category is required and must be a string' });
+            return;
+        }
+
+        if (item.stock !== undefined && (typeof item.stock !== 'number' || item.stock < 0)) {
+            res.status(400).json({ message: 'Stock must be a non-negative number' });
+            return;
+        }
+
+        if (item.imageUrl && typeof item.imageUrl !== 'string') {
+            res.status(400).json({ message: 'Image URL must be a string' });
             return;
         }
 

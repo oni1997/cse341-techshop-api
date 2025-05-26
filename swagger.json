@@ -8,7 +8,6 @@
   "host": "cse341-techshop-api.onrender.com",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
@@ -81,7 +80,24 @@
                   "example": "any"
                 },
                 "address": {
-                  "example": "any"
+                  "type": "object",
+                  "properties": {
+                    "street": {
+                      "example": "any"
+                    },
+                    "city": {
+                      "example": "any"
+                    },
+                    "state": {
+                      "example": "any"
+                    },
+                    "zipCode": {
+                      "example": "any"
+                    },
+                    "country": {
+                      "example": "any"
+                    }
+                  }
                 }
               }
             }
@@ -166,7 +182,24 @@
                   "example": "any"
                 },
                 "address": {
-                  "example": "any"
+                  "type": "object",
+                  "properties": {
+                    "street": {
+                      "example": "any"
+                    },
+                    "city": {
+                      "example": "any"
+                    },
+                    "state": {
+                      "example": "any"
+                    },
+                    "zipCode": {
+                      "example": "any"
+                    },
+                    "country": {
+                      "example": "any"
+                    }
+                  }
                 }
               }
             }
